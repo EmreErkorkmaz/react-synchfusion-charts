@@ -1,12 +1,10 @@
 import { ChartComponent, SeriesCollectionDirective, SeriesDirective, Inject, LineSeries, DateTime, Legend, Tooltip } from '@syncfusion/ej2-react-charts';
-import { chartData } from '../data/financial-data';
+import { useEffect, useState } from 'react';
+// import { chartData } from '../data/financial-data';
+import { useSocketService } from '../SocketService';
 
-export let data1 = chartData.map(data => {
-  return {
-    x: new Date(data.x),
-    y: data.open
-  }
-});
+export let data1: any[];
+
 
 const SAMPLE_CSS = `
   .control-fluid {
@@ -17,6 +15,22 @@ const SAMPLE_CSS = `
       }`;
 
 const LineChart = () => {
+  const [socketData, setSocketData] = useState([]);
+  const liveData = useSocketService();
+
+  useEffect(() => {
+    setSocketData([...socketData, ...liveData])
+  }, [liveData])
+
+  useEffect(() => {
+    console.log(socketData)
+    data1 = socketData.map((data: any, index: number) => {
+      return {
+        x: index,
+        y: data.p
+      }
+    })
+  }, [socketData])
 
   function onChartLoad(args: any) {
     let chart: HTMLElement | null = document.getElementById('charts');
